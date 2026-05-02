@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'student'],
       default: 'student',
     },
+    completedModules: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
