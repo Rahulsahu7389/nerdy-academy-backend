@@ -8,6 +8,7 @@ const User = require('./models/User');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const sharedRoutes = require('./routes/sharedRoutes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
+app.use('/api', sharedRoutes);
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;

@@ -13,7 +13,12 @@ const getProgress = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json({ completedModules: user.completedModules });
+    res.status(200).json({
+      milestones: user.milestones,
+      tests: user.tests,
+      topicsLearned: user.topicsLearned,
+      avgScore: user.avgScore,
+    });
   } catch (error) {
     console.error('Error fetching progress:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
@@ -27,11 +32,7 @@ const getProgress = async (req, res) => {
 const updateProgress = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { completedModules } = req.body;
-
-    if (!Array.isArray(completedModules)) {
-      return res.status(400).json({ message: 'completedModules must be an array' });
-    }
+    const { milestones, tests, topicsLearned, avgScore } = req.body;
 
     const user = await User.findById(userId);
 
@@ -39,10 +40,20 @@ const updateProgress = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    user.completedModules = completedModules;
+    if (milestones !== undefined) user.milestones = milestones;
+    if (tests !== undefined) user.tests = tests;
+    if (topicsLearned !== undefined) user.topicsLearned = topicsLearned;
+    if (avgScore !== undefined) user.avgScore = avgScore;
+
     await user.save();
 
-    res.status(200).json({ message: 'Progress updated successfully', completedModules: user.completedModules });
+    res.status(200).json({
+      message: 'Progress updated successfully',
+      milestones: user.milestones,
+      tests: user.tests,
+      topicsLearned: user.topicsLearned,
+      avgScore: user.avgScore,
+    });
   } catch (error) {
     console.error('Error updating progress:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
