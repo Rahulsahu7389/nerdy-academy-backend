@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
     tests: [
       {
         title: { type: String, required: true },
+        details: { type: String },
         dateAndTime: { type: Date, default: Date.now },
         score: { type: Number, required: true },
       },
@@ -36,6 +37,7 @@ const userSchema = new mongoose.Schema(
     topicsLearned: [
       {
         title: { type: String, required: true },
+        details: { type: String },
         date: { type: Date, default: Date.now },
       },
     ],
