@@ -25,6 +25,8 @@ const userSchema = new mongoose.Schema(
     milestones: {
       topicsCompleted: { type: Number, default: 0 },
       testsGiven: { type: Number, default: 0 },
+      homeworksCompleted: { type: Number, default: 0 },
+      notesAdded: { type: Number, default: 0 },
     },
     tests: [
       {
@@ -35,6 +37,20 @@ const userSchema = new mongoose.Schema(
       },
     ],
     topicsLearned: [
+      {
+        title: { type: String, required: true },
+        details: { type: String },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    homeworks: [
+      {
+        title: { type: String, required: true },
+        details: { type: String },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    notes: [
       {
         title: { type: String, required: true },
         details: { type: String },

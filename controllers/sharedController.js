@@ -27,13 +27,18 @@ const getStats = async (req, res) => {
         sumAvgScore += (student.avgScore || 0);
       });
 
-      totalMilestones = topicsLearned + testsTaken;
+      totalMilestones = topicsLearned + testsTaken + 
+                        allStudents.reduce((acc, s) => acc + (s.milestones?.homeworksCompleted || 0), 0) +
+                        allStudents.reduce((acc, s) => acc + (s.milestones?.notesAdded || 0), 0);
+      
       const averageScore = allStudents.length > 0 ? Math.round(sumAvgScore / allStudents.length) : 0;
 
       return res.status(200).json({
         totalMilestones,
         topicsLearned,
         testsTaken,
+        homeworksCompleted: allStudents.reduce((acc, s) => acc + (s.milestones?.homeworksCompleted || 0), 0),
+        notesAdded: allStudents.reduce((acc, s) => acc + (s.milestones?.notesAdded || 0), 0),
         averageScore
       });
     } else {
@@ -42,12 +47,16 @@ const getStats = async (req, res) => {
 
       const topicsLearned = student.milestones?.topicsCompleted || 0;
       const testsTaken = student.milestones?.testsGiven || 0;
-      const totalMilestones = topicsLearned + testsTaken;
+      const homeworksCompleted = student.milestones?.homeworksCompleted || 0;
+      const notesAdded = student.milestones?.notesAdded || 0;
+      const totalMilestones = topicsLearned + testsTaken + homeworksCompleted + notesAdded;
 
       return res.status(200).json({
         totalMilestones,
         topicsLearned,
         testsTaken,
+        homeworksCompleted,
+        notesAdded,
         averageScore: student.avgScore || 0
       });
     }
@@ -94,6 +103,12 @@ const addMilestone = async (req, res) => {
       
       const totalScore = student.tests.reduce((acc, test) => acc + test.score, 0);
       student.avgScore = Math.round(totalScore / student.tests.length);
+    } else if (type === 'Homework') {
+      student.homeworks.push({ title, details, date: dateObj });
+      student.milestones.homeworksCompleted = (student.milestones.homeworksCompleted || 0) + 1;
+    } else if (type === 'Note') {
+      student.notes.push({ title, details, date: dateObj });
+      student.milestones.notesAdded = (student.milestones.notesAdded || 0) + 1;
     }
 
     await student.save();
@@ -145,6 +160,20 @@ const updateMilestone = async (req, res) => {
 
       const totalScore = student.tests.reduce((acc, test) => acc + test.score, 0);
       student.avgScore = Math.round(totalScore / student.tests.length);
+    } else if (type === 'Homework') {
+      const milestone = student.homeworks.id(milestoneId);
+      if (!milestone) return res.status(404).json({ message: 'Milestone not found.' });
+      
+      milestone.title = title;
+      milestone.details = details;
+      milestone.date = dateObj;
+    } else if (type === 'Note') {
+      const milestone = student.notes.id(milestoneId);
+      if (!milestone) return res.status(404).json({ message: 'Milestone not found.' });
+      
+      milestone.title = title;
+      milestone.details = details;
+      milestone.date = dateObj;
     } else {
       return res.status(400).json({ message: 'Invalid milestone type.' });
     }
@@ -184,6 +213,18 @@ const deleteMilestone = async (req, res) => {
       } else {
         student.avgScore = 0;
       }
+    } else if (milestoneType === 'Homework') {
+      const milestone = student.homeworks.id(milestoneId);
+      if (!milestone) return res.status(404).json({ message: 'Milestone not found.' });
+      
+      student.homeworks.pull(milestoneId);
+      student.milestones.homeworksCompleted = Math.max((student.milestones.homeworksCompleted || 0) - 1, 0);
+    } else if (milestoneType === 'Note') {
+      const milestone = student.notes.id(milestoneId);
+      if (!milestone) return res.status(404).json({ message: 'Milestone not found.' });
+      
+      student.notes.pull(milestoneId);
+      student.milestones.notesAdded = Math.max((student.milestones.notesAdded || 0) - 1, 0);
     } else {
       return res.status(400).json({ message: 'Invalid milestone type.' });
     }

@@ -17,6 +17,8 @@ const getProgress = async (req, res) => {
       milestones: user.milestones,
       tests: user.tests,
       topicsLearned: user.topicsLearned,
+      homeworks: user.homeworks,
+      notes: user.notes,
       avgScore: user.avgScore,
     });
   } catch (error) {
@@ -32,7 +34,7 @@ const getProgress = async (req, res) => {
 const updateProgress = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { milestones, tests, topicsLearned, avgScore } = req.body;
+    const { milestones, tests, topicsLearned, homeworks, notes, avgScore } = req.body;
 
     const user = await User.findById(userId);
 
@@ -43,6 +45,8 @@ const updateProgress = async (req, res) => {
     if (milestones !== undefined) user.milestones = milestones;
     if (tests !== undefined) user.tests = tests;
     if (topicsLearned !== undefined) user.topicsLearned = topicsLearned;
+    if (homeworks !== undefined) user.homeworks = homeworks;
+    if (notes !== undefined) user.notes = notes;
     if (avgScore !== undefined) user.avgScore = avgScore;
 
     await user.save();
@@ -52,6 +56,8 @@ const updateProgress = async (req, res) => {
       milestones: user.milestones,
       tests: user.tests,
       topicsLearned: user.topicsLearned,
+      homeworks: user.homeworks,
+      notes: user.notes,
       avgScore: user.avgScore,
     });
   } catch (error) {
